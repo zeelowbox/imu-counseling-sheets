@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hair Consultation System</title>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500&family=Noto+Sans+JP:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0f14;
+    --card: #161820;
+    --border: #2a2d3a;
+    --navy: #1a2035;
+    --amber: #c8a060;
+    --amber-dim: #7a6038;
+    --teal: #5a9a8a;
+    --text: #e8e4dc;
+    --text-mid: #9a96a0;
+    --text-dim: #50505a;
+    --mauve: #c4a4b8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    font-family: 'Noto Sans JP', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* グリッド背景 */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(90,154,138,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(90,154,138,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
+
+  .logo-area {
+    text-align: center;
+    margin-bottom: 60px;
+    animation: fadeUp 0.8s ease both;
+  }
+  .logo-line {
+    width: 40px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--amber), transparent);
+    margin: 0 auto 20px;
+  }
+  .logo-area h1 {
+    font-family: 'Shippori Mincho', serif;
+    font-weight: 400;
+    font-size: 13px;
+    letter-spacing: 0.35em;
+    color: var(--amber);
+    margin-bottom: 8px;
+  }
+  .logo-area .sub {
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.2em;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    max-width: 700px;
+    width: 100%;
+    animation: fadeUp 0.8s 0.15s ease both;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 32px 28px;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent-color, var(--amber)), transparent);
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+  .card:hover { border-color: var(--accent-color, var(--amber)); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+  .card:hover::before { opacity: 1; }
+
+  .card-a { --accent-color: var(--teal); }
+  .card-b { --accent-color: var(--amber); }
+
+  .card-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.15em;
+    margin-bottom: 16px;
+  }
+  .card-icon {
+    font-size: 28px;
+    margin-bottom: 14px;
+    display: block;
+  }
+  .card h2 {
+    font-family: 'Shippori Mincho', serif;
+    font-weight: 400;
+    font-size: 18px;
+    letter-spacing: 0.15em;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+  .card-en {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.15em;
+    margin-bottom: 16px;
+  }
+  .card p {
+    font-size: 12px;
+    color: var(--text-mid);
+    line-height: 1.8;
+  }
+  .card-arrow {
+    position: absolute;
+    bottom: 20px;
+    right: 24px;
+    font-size: 14px;
+    color: var(--text-dim);
+    transition: all 0.2s;
+  }
+  .card:hover .card-arrow { color: var(--accent-color, var(--amber)); transform: translateX(4px); }
+
+  /* セッション状態表示 */
+  .session-status {
+    max-width: 700px;
+    width: 100%;
+    margin-top: 20px;
+    padding: 14px 20px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: fadeUp 0.8s 0.3s ease both;
+  }
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--text-dim);
+    flex-shrink: 0;
+  }
+  .status-dot.active { background: var(--teal); box-shadow: 0 0 8px var(--teal); }
+  .status-text { font-size: 12px; color: var(--text-mid); font-family: 'DM Mono', monospace; }
+  .status-name { color: var(--text); font-weight: 500; }
+  .btn-clear-session {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--text-dim);
+    background: none;
+    border: 1px solid var(--border);
+    padding: 4px 12px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-family: 'Noto Sans JP', sans-serif;
+    transition: all 0.15s;
+  }
+  .btn-clear-session:hover { border-color: var(--text-dim); color: var(--text-mid); }
+
+  .footer-note {
+    margin-top: 40px;
+    font-size: 11px;
+    color: var(--text-dim);
+    text-align: center;
+    letter-spacing: 0.1em;
+    animation: fadeUp 0.8s 0.45s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 500px) {
+    .cards { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="logo-area">
+  <div class="logo-line"></div>
+  <h1>HAIR CONSULTATION SYSTEM</h1>
+  <div class="sub">毛髪カウンセリング・診断システム</div>
+</div>
+
+<div class="cards">
+  <a href="monshin.html" class="card card-a">
+    <div class="card-num">01 / STEP 1</div>
+    <span class="card-icon">📋</span>
+    <h2>問　診　表</h2>
+    <div class="card-en">CONSULTATION FORM</div>
+    <p>来店情報・メニュー・毛髪履歴・デイリーケア・同意確認書</p>
+    <span class="card-arrow">→</span>
+  </a>
+  <a href="shindan.html" class="card card-b">
+    <div class="card-num">02 / STEP 2</div>
+    <span class="card-icon">🔬</span>
+    <h2>毛髪診断書</h2>
+    <div class="card-en">HAIR DIAGNOSIS</div>
+    <p>触診・視診・部位別ダメージ評価・薬剤反応予測・施術方針</p>
+    <span class="card-arrow">→</span>
+  </a>
+</div>
+
+<div class="session-status" id="sessionStatus">
+  <div class="status-dot" id="statusDot"></div>
+  <div class="status-text" id="statusText">セッションデータなし — 問診票から開始してください</div>
+  <button class="btn-clear-session" id="clearBtn" style="display:none" onclick="clearSession()">セッションをクリア</button>
+</div>
+
+<div class="footer-note">
+  問診票のデータはブラウザ内で一時保存され、診断書に引き継がれます。<br>
+  PDF出力後にセッションをクリアして次のお客様へ。
+</div>
+
+<script>
+  function updateStatus() {
+    const data = sessionStorage.getItem('hairConsultData');
+    const dot = document.getElementById('statusDot');
+    const text = document.getElementById('statusText');
+    const btn = document.getElementById('clearBtn');
+    if (data) {
+      const d = JSON.parse(data);
+      dot.classList.add('active');
+      text.innerHTML = `セッション進行中 — <span class="status-name">${d.clientName || '（氏名未入力）'}</span>　${d.visitDate || ''}`;
+      btn.style.display = 'block';
+    } else {
+      dot.classList.remove('active');
+      text.textContent = 'セッションデータなし — 問診票から開始してください';
+      btn.style.display = 'none';
+    }
+  }
+  function clearSession() {
+    if (confirm('セッションデータをクリアしますか？\n（次のお客様の対応を開始します）')) {
+      sessionStorage.removeItem('hairConsultData');
+      updateStatus();
+    }
+  }
+  updateStatus();
+  window.addEventListener('storage', updateStatus);
+</script>
+</body>
+</html>
